@@ -102,6 +102,7 @@ func (p *idPool) newIDs(limit uint32) {
 	go func(maxID uint16) {
 		for i := uint16(0); i < maxID; i++ {
 			if len(ids) > 0 {
+				i--
 				continue
 			}
 			ids <- i
