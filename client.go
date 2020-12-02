@@ -23,7 +23,7 @@ import (
 	"sync"
 )
 
-var defaultIdsPool idPool
+var defaultIdsPool = &idPool{}
 
 // Role for fastcgi application in spec
 type Role uint16
@@ -83,15 +83,7 @@ func (p *idPool) Release(id uint16) {
 	}()
 }
 
-func newIdsPool(limit uint32) *idPool {
-	if defaultIdsPool == (idPool{}) {
-		defaultIdsPool = newIDs(limit)
-	}
-
-	return &defaultIdsPool
-}
-
-func newIDs(limit uint32) (p idPool) {
+func (p *idPool) newIDs(limit uint32) {
 
 	// sanatize limit
 	if limit == 0 || limit > 65536 {
@@ -106,16 +98,18 @@ func newIDs(limit uint32) (p idPool) {
 	// transport connection.
 	//
 	// Ref: https://fast-cgi.github.io/spec#33-records
-	ids := make(chan uint16)
+	ids := make(chan uint16, 50)
 	go func(maxID uint16) {
 		for i := uint16(0); i < maxID; i++ {
+			if len(ids) > 0 {
+				continue
+			}
 			ids <- i
 		}
 		ids <- uint16(maxID)
 	}(uint16(limit - 1))
 
 	p.IDs = ids
-	return
 }
 
 // client is the default implementation of Client
@@ -401,6 +395,8 @@ type ClientFactory func() (Client, error)
 // Default 0.
 //
 func SimpleClientFactory(connFactory ConnFactory, limit uint32) ClientFactory {
+	defaultIdsPool.newIDs(limit)
+
 	return func() (c Client, err error) {
 		// connect to given network address
 		conn, err := connFactory()
@@ -411,7 +407,7 @@ func SimpleClientFactory(connFactory ConnFactory, limit uint32) ClientFactory {
 		// create client
 		c = &client{
 			conn: newConn(conn),
-			ids:  newIdsPool(limit),
+			ids:  defaultIdsPool,
 		}
 		return
 	}
