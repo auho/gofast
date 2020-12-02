@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yookoala/gofast/example/nodejs"
+	"github.com/auho/gofast/example/nodejs"
 )
 
 func examplePath() string {

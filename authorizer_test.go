@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yookoala/gofast"
+	"github.com/auho/gofast"
 )
 
 func TestNewAuthRequest(t *testing.T) {

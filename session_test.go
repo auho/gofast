@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yookoala/gofast"
+	"github.com/auho/gofast"
 )
 
 type File struct {

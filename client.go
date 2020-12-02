@@ -23,6 +23,8 @@ import (
 	"sync"
 )
 
+var defaultIdsPool idPool
+
 // Role for fastcgi application in spec
 type Role uint16
 
@@ -81,6 +83,14 @@ func (p *idPool) Release(id uint16) {
 	}()
 }
 
+func newIdsPool(limit uint32) *idPool {
+	if defaultIdsPool == (idPool{}) {
+		defaultIdsPool = newIDs(limit)
+	}
+
+	return &defaultIdsPool
+}
+
 func newIDs(limit uint32) (p idPool) {
 
 	// sanatize limit
@@ -111,7 +121,7 @@ func newIDs(limit uint32) (p idPool) {
 // client is the default implementation of Client
 type client struct {
 	conn *conn
-	ids  idPool
+	ids  *idPool
 }
 
 // writeRequest writes params and stdin to the FastCGI application
@@ -401,7 +411,7 @@ func SimpleClientFactory(connFactory ConnFactory, limit uint32) ClientFactory {
 		// create client
 		c = &client{
 			conn: newConn(conn),
-			ids:  newIDs(limit),
+			ids:  newIdsPool(limit),
 		}
 		return
 	}

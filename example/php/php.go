@@ -3,7 +3,7 @@ package php
 import (
 	"net/http"
 
-	"github.com/yookoala/gofast"
+	"github.com/auho/gofast"
 )
 
 // NewSimpleHandler returns a fastcgi web server implementation as an http.Handler

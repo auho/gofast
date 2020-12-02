@@ -13,8 +13,8 @@ import (
 
 	"github.com/go-restit/lzjson"
 
-	"github.com/yookoala/gofast/example/php"
-	"github.com/yookoala/gofast/tools/phpfpm"
+	"github.com/auho/gofast/example/php"
+	"github.com/auho/gofast/tools/phpfpm"
 )
 
 var username, phpfpmPath string
