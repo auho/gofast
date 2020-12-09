@@ -76,11 +76,11 @@ func (p *idPool) Alloc() uint16 {
 
 // ReleaseID implements Client.ReleaseID
 func (p *idPool) Release(id uint16) {
-	go func() {
-		// release the ID back to channel for reuse
-		// use goroutine to prev0, ent blocking ReleaseID
-		p.IDs <- id
-	}()
+	//go func() {
+	//	// release the ID back to channel for reuse
+	//	// use goroutine to prev0, ent blocking ReleaseID
+	//	p.IDs <- id
+	//}()
 }
 
 func (p *idPool) newIDs(limit uint32) {
@@ -98,16 +98,15 @@ func (p *idPool) newIDs(limit uint32) {
 	// transport connection.
 	//
 	// Ref: https://fast-cgi.github.io/spec#33-records
-	ids := make(chan uint16, 50)
+	ids := make(chan uint16, 100)
 	go func(maxID uint16) {
-		for i := uint16(0); i < maxID; i++ {
-			if len(ids) > 0 {
-				i--
-				continue
-			}
+		for i := uint16(0); i < maxID+1; i++ {
 			ids <- i
+			if i == maxID {
+				i= uint16(0)
+			}
 		}
-		ids <- uint16(maxID)
+		//ids <- uint16(maxID)
 	}(uint16(limit - 1))
 
 	p.IDs = ids
